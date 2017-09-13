@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item type="id" name="tab_view_header" />
+    <item type="id" name="tab_view_indicator_container" />
     <item type="id" name="tab_view_indicator" />
     <item type="id" name="tab_view_pager" />
 </resources>

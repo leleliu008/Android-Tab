@@ -1,18 +1,12 @@
 package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.fpliu.newton.ui.base.BaseView;
-import com.fpliu.newton.ui.base.LazyFragment;
 import com.fpliu.newton.ui.base.UIUtil;
-import com.shizhefei.view.indicator.FixedIndicatorView;
 import com.shizhefei.view.indicator.Indicator;
 import com.shizhefei.view.indicator.IndicatorViewPager;
 import com.shizhefei.view.indicator.slidebar.ColorBar;
@@ -26,64 +20,79 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public abstract class TabFragment<T> extends LazyFragment implements IndicatorViewPager.OnIndicatorPageChangeListener, List<T> {
+public final class TabImpl<T> implements ITab<T> {
 
     private List<T> items;
+    private Context context;
     private LinearLayout headerView;
     private RelativeLayout indicatorPanel;
     private RelativeLayout leftPanel;
     private RelativeLayout rightPanel;
     private Indicator indicatorView;
     private SViewPager viewPager;
-    private IndicatorViewPager.IndicatorFragmentPagerAdapter adapter;
+    private IndicatorViewPager indicatorViewPager;
+    private IndicatorViewPager.IndicatorPagerAdapter adapter;
 
     @Override
-    protected void onCreateViewLazy(BaseView baseView, Bundle savedInstanceState) {
-        super.onCreateViewLazy(baseView, savedInstanceState);
-
-        LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+    public View init(Context context, RelationShipAndPosition relationShipAndPosition) {
+        this.context = context;
 
         LinearLayout.LayoutParams lp3 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
         LinearLayout.LayoutParams lp4 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1);
 
-        Context context = getActivity();
-
-        LinearLayout contentView = new LinearLayout(context);
-        contentView.setOrientation(LinearLayout.VERTICAL);
-        addContentView(contentView);
+        RelativeLayout contentView = new RelativeLayout(context);
 
         headerView = new LinearLayout(context);
+        headerView.setId(R.id.tab_view_header);
         headerView.setOrientation(LinearLayout.VERTICAL);
-        contentView.addView(headerView, lp1);
+        contentView.addView(headerView, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
 
         LinearLayout container = new LinearLayout(context);
+        container.setId(R.id.tab_view_indicator_container);
         container.setOrientation(LinearLayout.HORIZONTAL);
-
-        leftPanel = new RelativeLayout(context);
-        container.addView(leftPanel, lp3);
-
-        indicatorPanel = new RelativeLayout(context);
-        container.addView(indicatorPanel, lp4);
-
-        rightPanel = new RelativeLayout(context);
-        container.addView(rightPanel, lp3);
+        container.addView(leftPanel = new RelativeLayout(context), lp3);
+        container.addView(indicatorPanel = new RelativeLayout(context), lp4);
+        container.addView(rightPanel = new RelativeLayout(context), lp3);
 
         viewPager = new SViewPager(context);
         viewPager.setId(R.id.tab_view_pager);
         viewPager.setCanScroll(true);
 
-        if (isTabOnTop()) {
-            contentView.addView(container, lp1);
-            contentView.addView(viewPager, lp2);
-        } else {
-            contentView.addView(viewPager, lp2);
-            contentView.addView(container, lp1);
+        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+
+        switch (relationShipAndPosition) {
+            case LINEAR_TOP:
+                lp1.addRule(RelativeLayout.BELOW, R.id.tab_view_header);
+                contentView.addView(container, lp1);
+
+                lp2.addRule(RelativeLayout.BELOW, R.id.tab_view_indicator_container);
+                lp2.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                contentView.addView(viewPager, lp2);
+                break;
+            case LINEAR_BOTTOM:
+                lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                contentView.addView(container, lp1);
+
+                lp2.addRule(RelativeLayout.BELOW, R.id.tab_view_header);
+                lp2.addRule(RelativeLayout.ABOVE, R.id.tab_view_indicator_container);
+                contentView.addView(viewPager, lp2);
+                break;
+            case FRAME_BOTTOM:
+                lp1.addRule(RelativeLayout.BELOW, R.id.tab_view_header);
+                lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                contentView.addView(viewPager, lp1);
+
+                lp2.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                lp2.bottomMargin = UIUtil.dip2px(context, 20);
+                contentView.addView(container, lp2);
+                break;
         }
 
-        setIndicator(new FixedIndicatorView(context));
+        return contentView;
     }
 
+    @Override
     public void setIndicator(Indicator indicator) {
         ((View) indicator).setId(R.id.tab_view_indicator);
 
@@ -103,99 +112,106 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
         //TODO 暂时先把原来的都清空吧
         viewPager.clearOnPageChangeListeners();
 
-        IndicatorViewPager indicatorViewPager = new IndicatorViewPager(indicatorView, viewPager);
-        indicatorViewPager.setAdapter(adapter = new IndicatorViewPager.IndicatorFragmentPagerAdapter(getChildFragmentManager()) {
-            @Override
-            public int getCount() {
-                return TabFragment.this.getTabCount();
-            }
-
-            @Override
-            public View getViewForTab(int position, View convertView, ViewGroup container) {
-                return TabFragment.this.getViewForTab(position, convertView, container, get(position));
-            }
-
-            @Override
-            public Fragment getFragmentForPage(int position) {
-                return TabFragment.this.getFragmentForPage(position);
-            }
-        });
-        indicatorViewPager.setOnIndicatorPageChangeListener(this);
+        indicatorViewPager = new IndicatorViewPager(indicatorView, viewPager);
     }
 
-    public Indicator getIndicatorView() {
+    @Override
+    public Indicator getIndicator() {
         return indicatorView;
     }
 
+    @Override
     public SViewPager getViewPager() {
         return viewPager;
     }
 
-    public IndicatorViewPager.IndicatorFragmentPagerAdapter getAdapter() {
+    @Override
+    public void setPagerAdapter(IndicatorViewPager.IndicatorPagerAdapter adapter) {
+        this.adapter = adapter;
+        indicatorViewPager.setAdapter(adapter);
+    }
+
+    @Override
+    public IndicatorViewPager.IndicatorPagerAdapter getPagerAdapter() {
         return adapter;
     }
 
+    @Override
     public void setScrollBar(ScrollBar scrollBar) {
         indicatorView.setScrollBar(scrollBar);
     }
 
+    @Override
     public void setColorScrollBar(int color, int height) {
-        indicatorView.setScrollBar((new ColorBar(getActivity(), color, height)));
+        indicatorView.setScrollBar((new ColorBar(context, color, height)));
     }
 
+    @Override
     public void setColorScrollBar(int color, int height, ScrollBar.Gravity gravity) {
-        indicatorView.setScrollBar((new ColorBar(getActivity(), color, height, gravity)));
+        indicatorView.setScrollBar((new ColorBar(context, color, height, gravity)));
     }
 
+    @Override
     public void setColorResScrollBar(int colorId, int height) {
-        indicatorView.setScrollBar((new ColorBar(getActivity(), getResources().getColor(colorId), height)));
+        indicatorView.setScrollBar((new ColorBar(context, context.getResources().getColor(colorId), height)));
     }
 
+    @Override
     public void setColorResScrollBar(int colorId, int height, ScrollBar.Gravity gravity) {
-        indicatorView.setScrollBar((new ColorBar(getActivity(), getResources().getColor(colorId), height, gravity)));
+        indicatorView.setScrollBar((new ColorBar(context, context.getResources().getColor(colorId), height, gravity)));
     }
 
+    @Override
     public void setOnTransitionListener(Indicator.OnTransitionListener onTransitionListener) {
         indicatorView.setOnTransitionListener(onTransitionListener);
     }
 
+    @Override
     public void setOnTransitionTextViewSizeAndColor(float selectSize, float unSelectSize, int selectColor, int unSelectColor) {
         indicatorView.setOnTransitionListener(new OnTransitionTextListener(selectSize, unSelectSize, selectColor, unSelectColor));
     }
 
+    @Override
     public void setOnTransitionTextViewSizeAndColorRes(float selectSize, float unSelectSize, int selectColorId, int unSelectColorId) {
-        indicatorView.setOnTransitionListener(new OnTransitionTextListener(selectSize, unSelectSize, getResources().getColor(selectColorId), getResources().getColor(unSelectColorId)));
+        indicatorView.setOnTransitionListener(new OnTransitionTextListener(selectSize, unSelectSize, context.getResources().getColor(selectColorId), context.getResources().getColor(unSelectColorId)));
     }
 
+    @Override
     public void setCurrentItem(int position) {
         indicatorView.setCurrentItem(position);
     }
 
-    public void setCurrentItem(int position, boolean anim) {
-        indicatorView.setCurrentItem(position, anim);
+    @Override
+    public void setCurrentItem(int position, boolean needAnimation) {
+        indicatorView.setCurrentItem(position, needAnimation);
     }
 
+    @Override
     public void setTabItemClickable(boolean clickable) {
         indicatorView.setItemClickable(clickable);
     }
 
+    @Override
     public void setOnIndicatorItemClickListener(Indicator.OnIndicatorItemClickListener listener) {
         indicatorView.setOnIndicatorItemClickListener(listener);
     }
 
+    @Override
+    public void setOnIndicatorPageChangeListener(IndicatorViewPager.OnIndicatorPageChangeListener listener) {
+        indicatorViewPager.setOnIndicatorPageChangeListener(listener);
+    }
+
+    @Override
     public void setOnItemSelectListener(Indicator.OnItemSelectedListener listener) {
         indicatorView.setOnItemSelectListener(listener);
     }
 
+    @Override
     public void setCanScroll(boolean canScroll) {
         viewPager.setCanScroll(canScroll);
     }
 
-    /**
-     * 设置Tab条为包裹内容，这时候，后面的背景需要进行设置，否则会很难看
-     *
-     * @param indicatorBarBackgroundColor
-     */
+    @Override
     public void setIndicatorWrapAndInCenter(int indicatorBarBackgroundColor) {
         View view = (View) indicatorView;
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
@@ -205,51 +221,66 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
         ((ViewGroup) indicatorPanel.getParent()).setBackgroundColor(indicatorBarBackgroundColor);
     }
 
+    @Override
     public void setLeftViewInIndicatorBar(View view) {
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.CENTER_VERTICAL);
         lp.leftMargin = UIUtil.dip2px(view.getContext(), 15);
+        lp.rightMargin = UIUtil.dip2px(view.getContext(), 15);
         leftPanel.addView(view, lp);
     }
 
+    @Override
     public void setLeftViewInIndicatorBar(View view, RelativeLayout.LayoutParams lp) {
         leftPanel.addView(view, lp);
     }
 
+    @Override
     public void setRightViewInIndicatorBar(View view) {
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.CENTER_VERTICAL);
-        lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        lp.leftMargin = UIUtil.dip2px(view.getContext(), 15);
         lp.rightMargin = UIUtil.dip2px(view.getContext(), 15);
         rightPanel.addView(view, lp);
     }
 
+    @Override
     public void setRightViewInIndicatorBar(View view, RelativeLayout.LayoutParams lp) {
         rightPanel.addView(view, lp);
     }
 
+    @Override
     public void setViewBeforeTab(View view) {
         headerView.addView(view, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
     }
 
+    @Override
     public void setViewBeforeTab(View view, LinearLayout.LayoutParams lp) {
         headerView.addView(view, lp);
     }
 
     @Override
-    public void onIndicatorPageChange(int preItem, int currentItem) {
-
+    public int getCurrentItemPosition() {
+        return indicatorView.getCurrentItem();
     }
 
-    public boolean isTabOnTop() {
-        return true;
+    @Override
+    public View getCurrentTabView() {
+        return indicatorView.getItemView(getCurrentItemPosition());
     }
 
+    @Override
+    public int getTabCount() {
+        return items == null ? 0 : items.size();
+    }
+
+    @Override
     public void setItems(List<T> items) {
         this.items = items;
         adapter.notifyDataSetChanged();
     }
 
+    @Override
     public List<T> getItems() {
         return items;
     }
@@ -269,21 +300,18 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
         return items == null ? false : items.contains(object);
     }
 
-    @NonNull
     @Override
     public Iterator<T> iterator() {
         return items == null ? null : items.iterator();
     }
 
-    @NonNull
     @Override
     public T[] toArray() {
         return items == null ? null : (T[]) items.toArray();
     }
 
-    @NonNull
     @Override
-    public <T1> T1[] toArray(@NonNull T1[] a) {
+    public <T1> T1[] toArray(T1[] a) {
         return items == null ? null : (T1[]) items.toArray();
     }
 
@@ -315,7 +343,7 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
     }
 
     @Override
-    public boolean containsAll(@NonNull Collection<?> collection) {
+    public boolean containsAll(Collection<?> collection) {
         if (items == null) {
             return false;
         }
@@ -326,7 +354,7 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
     }
 
     @Override
-    public boolean addAll(@NonNull Collection<? extends T> collection) {
+    public boolean addAll(Collection<? extends T> collection) {
         if (items == null) {
             items = new ArrayList<>();
         }
@@ -338,7 +366,7 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
     }
 
     @Override
-    public boolean addAll(int index, @NonNull Collection<? extends T> collection) {
+    public boolean addAll(int index, Collection<? extends T> collection) {
         if (items == null) {
             items = new ArrayList<>();
         }
@@ -350,7 +378,7 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
     }
 
     @Override
-    public boolean removeAll(@NonNull Collection<?> collection) {
+    public boolean removeAll(Collection<?> collection) {
         if (items == null) {
             return false;
         }
@@ -365,7 +393,7 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
     }
 
     @Override
-    public boolean retainAll(@NonNull Collection<?> collection) {
+    public boolean retainAll(Collection<?> collection) {
         if (items == null) {
             return false;
         }
@@ -447,13 +475,11 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
         return items == null ? null : items.listIterator();
     }
 
-    @NonNull
     @Override
     public ListIterator<T> listIterator(int index) {
         return items == null ? null : items.listIterator(index);
     }
 
-    @NonNull
     @Override
     public List<T> subList(int fromIndex, int toIndex) {
         if (items == null || items.isEmpty()) {
@@ -465,24 +491,4 @@ public abstract class TabFragment<T> extends LazyFragment implements IndicatorVi
         }
         return items.subList(fromIndex, toIndex);
     }
-
-    public int getCurrentItemPosition() {
-        return indicatorView.getCurrentItem();
-    }
-
-    public View getCurrentTabView() {
-        return indicatorView.getItemView(getCurrentItemPosition());
-    }
-
-    public Fragment getCurrentFragment() {
-        return adapter.getCurrentFragment();
-    }
-
-    public int getTabCount() {
-        return items == null ? 0 : items.size();
-    }
-
-    public abstract View getViewForTab(int position, View convertView, ViewGroup container, T item);
-
-    public abstract Fragment getFragmentForPage(int position);
 }
