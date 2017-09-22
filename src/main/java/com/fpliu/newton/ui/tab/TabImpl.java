@@ -178,12 +178,12 @@ public final class TabImpl<T> implements ITab<T> {
 
     @Override
     public void setCurrentItem(int position) {
-        indicatorView.setCurrentItem(position);
+        setCurrentItem(position, false);
     }
 
     @Override
     public void setCurrentItem(int position, boolean needAnimation) {
-        indicatorView.setCurrentItem(position, needAnimation);
+        indicatorViewPager.setCurrentItem(position, needAnimation);
     }
 
     @Override
