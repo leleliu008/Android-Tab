@@ -335,10 +335,6 @@ public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>
         return tab.subList(fromIndex, toIndex);
     }
 
-    public View getCurrentPageView() {
-        return getPagerAdapter().getCurrentPageView();
-    }
-
     public RelationShipAndPosition getRelationShipAndPosition() {
         return RelationShipAndPosition.LINEAR_TOP;
     }
