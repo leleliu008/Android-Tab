@@ -3,6 +3,8 @@ package com.fpliu.newton.ui.tab;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -29,12 +31,15 @@ public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>
         super.onCreate(savedInstanceState);
 
         tab = new TabImpl<>();
-        addViewInBody(tab.init(this, getRelationShipAndPosition()));
+        View contentView = tab.init(this, getRelationShipAndPosition(), heightWrapContent());
+        CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT);
+        lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
+        addContentView(contentView, lp);
         setIndicator(new FixedIndicatorView(this));
     }
 
     @Override
-    public View init(Context context, RelationShipAndPosition relationShipAndPosition) {
+    public View init(Context context, RelationShipAndPosition relationShipAndPosition, boolean heightWrapContent) {
         throw new RuntimeException("Not Support");
     }
 
@@ -337,6 +342,10 @@ public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>
 
     public RelationShipAndPosition getRelationShipAndPosition() {
         return RelationShipAndPosition.LINEAR_TOP;
+    }
+
+    public boolean heightWrapContent() {
+        return false;
     }
 
     @Override

@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface ITab<T> extends List<T> {
 
-    View init(Context context, RelationShipAndPosition relationShipAndPosition);
+    View init(Context context, RelationShipAndPosition relationShipAndPosition, boolean heightWrapContent);
 
     void setIndicator(Indicator indicator);
 

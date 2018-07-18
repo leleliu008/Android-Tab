@@ -29,12 +29,12 @@ public final class TabImpl<T> implements ITab<T> {
     private RelativeLayout leftPanel;
     private RelativeLayout rightPanel;
     private Indicator indicatorView;
-    private SViewPager viewPager;
+    private WrapContentHeightViewPager viewPager;
     private IndicatorViewPager indicatorViewPager;
     private IndicatorViewPager.IndicatorPagerAdapter adapter;
 
     @Override
-    public View init(Context context, RelationShipAndPosition relationShipAndPosition) {
+    public View init(Context context, RelationShipAndPosition relationShipAndPosition, boolean heightWrapContent) {
         this.context = context;
 
         LinearLayout.LayoutParams lp3 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -54,7 +54,7 @@ public final class TabImpl<T> implements ITab<T> {
         container.addView(indicatorPanel = new RelativeLayout(context), lp4);
         container.addView(rightPanel = new RelativeLayout(context), lp3);
 
-        viewPager = new SViewPager(context);
+        viewPager = new WrapContentHeightViewPager(context).setHeightWrapContent(heightWrapContent);
         viewPager.setId(R.id.tab_view_pager);
         viewPager.setCanScroll(true);
 
