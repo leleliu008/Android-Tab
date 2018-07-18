@@ -35,7 +35,7 @@ public abstract class TabViewFragment<T> extends LazyFragment implements ITab<T>
         View contentView = tab.init(context, getRelationShipAndPosition(), heightWrapContent());
         CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT);
         lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
-        addContentView(contentView, lp);
+        baseView.addView(contentView, lp);
         setIndicator(new FixedIndicatorView(context));
     }
 
