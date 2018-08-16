@@ -1,6 +1,8 @@
 package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -28,19 +30,23 @@ public interface ITab<T> extends List<T> {
 
     void setScrollBar(ScrollBar scrollBar);
 
-    void setColorScrollBar(int color, int height);
+    void setColorScrollBar(@ColorInt int color, int height);
 
-    void setColorScrollBar(int color, int height, ScrollBar.Gravity gravity);
+    void setColorScrollBar(@ColorInt int color, int height, ScrollBar.Gravity gravity);
 
-    void setColorResScrollBar(int colorId, int height);
+    void setColorResScrollBar(@ColorRes int colorRes, int height);
 
-    void setColorResScrollBar(int colorId, int height, ScrollBar.Gravity gravity);
+    void setColorResScrollBar(@ColorRes int colorRes, int height, ScrollBar.Gravity gravity);
 
     void setOnTransitionListener(Indicator.OnTransitionListener onTransitionListener);
 
-    void setOnTransitionTextViewSizeAndColor(float selectSize, float unSelectSize, int selectColor, int unSelectColor);
+    void setOnTransitionTextViewSizeAndColor(float selectSize, float unSelectSize, @ColorInt int selectColor, @ColorInt int unSelectColor);
 
-    void setOnTransitionTextViewSizeAndColorRes(float selectSize, float unSelectSize, int selectColorId, int unSelectColorId);
+    void setOnTransitionTextViewSizeAndColorRes(float selectSize, float unSelectSize, @ColorRes int selectColorRes, @ColorRes int unSelectColorRes);
+
+    void setOnTransitionBackgroundColorChange(@ColorInt int selectColor, @ColorInt int unSelectColor);
+
+    void setOnTransitionBackgroundColorResChange(@ColorRes int selectColorRes, @ColorRes int unSelectColorRes);
 
     void setCurrentItem(int position);
 
@@ -61,7 +67,21 @@ public interface ITab<T> extends List<T> {
      *
      * @param indicatorBarBackgroundColor
      */
-    void setIndicatorWrapAndInCenter(int indicatorBarBackgroundColor);
+    void setIndicatorWrapAndInCenter(@ColorInt int indicatorBarBackgroundColor);
+
+    /**
+     * 设置Tab条为包裹内容，这时候，后面的背景需要进行设置，否则会很难看
+     *
+     * @param indicatorBarBackgroundColor
+     */
+    void setIndicatorWrapAndAlignLeft(@ColorInt int indicatorBarBackgroundColor);
+
+    /**
+     * 设置Tab条为包裹内容，这时候，后面的背景需要进行设置，否则会很难看
+     *
+     * @param indicatorBarBackgroundColor
+     */
+    void setIndicatorWrapAndAlignRight(@ColorInt int indicatorBarBackgroundColor);
 
     void setLeftViewInIndicatorBar(View view);
 

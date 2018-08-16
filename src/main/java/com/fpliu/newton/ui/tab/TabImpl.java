@@ -1,6 +1,9 @@
 package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -142,23 +145,23 @@ public final class TabImpl<T> implements ITab<T> {
     }
 
     @Override
-    public void setColorScrollBar(int color, int height) {
+    public void setColorScrollBar(@ColorInt int color, int height) {
         indicatorView.setScrollBar((new ColorBar(context, color, height)));
     }
 
     @Override
-    public void setColorScrollBar(int color, int height, ScrollBar.Gravity gravity) {
+    public void setColorScrollBar(@ColorInt int color, int height, ScrollBar.Gravity gravity) {
         indicatorView.setScrollBar((new ColorBar(context, color, height, gravity)));
     }
 
     @Override
-    public void setColorResScrollBar(int colorId, int height) {
-        indicatorView.setScrollBar((new ColorBar(context, context.getResources().getColor(colorId), height)));
+    public void setColorResScrollBar(@ColorRes int colorRes, int height) {
+        indicatorView.setScrollBar((new ColorBar(context, ContextCompat.getColor(context, colorRes), height)));
     }
 
     @Override
-    public void setColorResScrollBar(int colorId, int height, ScrollBar.Gravity gravity) {
-        indicatorView.setScrollBar((new ColorBar(context, context.getResources().getColor(colorId), height, gravity)));
+    public void setColorResScrollBar(@ColorRes int colorRes, int height, ScrollBar.Gravity gravity) {
+        indicatorView.setScrollBar((new ColorBar(context, ContextCompat.getColor(context, colorRes), height, gravity)));
     }
 
     @Override
@@ -167,13 +170,23 @@ public final class TabImpl<T> implements ITab<T> {
     }
 
     @Override
-    public void setOnTransitionTextViewSizeAndColor(float selectSize, float unSelectSize, int selectColor, int unSelectColor) {
+    public void setOnTransitionTextViewSizeAndColor(float selectSize, float unSelectSize, @ColorInt int selectColor, @ColorInt int unSelectColor) {
         indicatorView.setOnTransitionListener(new OnTransitionTextListener(selectSize, unSelectSize, selectColor, unSelectColor));
     }
 
     @Override
-    public void setOnTransitionTextViewSizeAndColorRes(float selectSize, float unSelectSize, int selectColorId, int unSelectColorId) {
-        indicatorView.setOnTransitionListener(new OnTransitionTextListener(selectSize, unSelectSize, context.getResources().getColor(selectColorId), context.getResources().getColor(unSelectColorId)));
+    public void setOnTransitionTextViewSizeAndColorRes(float selectSize, float unSelectSize, @ColorRes int selectColorRes, @ColorRes int unSelectColorRes) {
+        indicatorView.setOnTransitionListener(new OnTransitionTextListener(selectSize, unSelectSize, ContextCompat.getColor(context, selectColorRes), ContextCompat.getColor(context, unSelectColorRes)));
+    }
+
+    @Override
+    public void setOnTransitionBackgroundColorChange(@ColorInt int selectColor, @ColorInt int unSelectColor) {
+        indicatorView.setOnTransitionListener(new OnTransitionBackgroundColorChangeListener(selectColor, unSelectColor));
+    }
+
+    @Override
+    public void setOnTransitionBackgroundColorResChange(@ColorRes int selectColorRes, @ColorRes int unSelectColorRes) {
+        indicatorView.setOnTransitionListener(new OnTransitionBackgroundColorChangeListener(context, selectColorRes, unSelectColorRes));
     }
 
     @Override
@@ -212,7 +225,7 @@ public final class TabImpl<T> implements ITab<T> {
     }
 
     @Override
-    public void setIndicatorWrapAndInCenter(int indicatorBarBackgroundColor) {
+    public void setIndicatorWrapAndInCenter(@ColorInt int indicatorBarBackgroundColor) {
         View view = (View) indicatorView;
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
         lp.width = RelativeLayout.LayoutParams.WRAP_CONTENT;
@@ -222,11 +235,31 @@ public final class TabImpl<T> implements ITab<T> {
     }
 
     @Override
+    public void setIndicatorWrapAndAlignLeft(@ColorInt int indicatorBarBackgroundColor) {
+        View view = (View) indicatorView;
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
+        lp.width = RelativeLayout.LayoutParams.WRAP_CONTENT;
+        lp.addRule(RelativeLayout.ALIGN_LEFT);
+        view.setLayoutParams(lp);
+        ((ViewGroup) indicatorPanel.getParent()).setBackgroundColor(indicatorBarBackgroundColor);
+    }
+
+    @Override
+    public void setIndicatorWrapAndAlignRight(@ColorInt int indicatorBarBackgroundColor) {
+        View view = (View) indicatorView;
+        RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
+        lp.width = RelativeLayout.LayoutParams.WRAP_CONTENT;
+        lp.addRule(RelativeLayout.ALIGN_RIGHT);
+        view.setLayoutParams(lp);
+        ((ViewGroup) indicatorPanel.getParent()).setBackgroundColor(indicatorBarBackgroundColor);
+    }
+
+    @Override
     public void setLeftViewInIndicatorBar(View view) {
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.CENTER_VERTICAL);
         lp.leftMargin = UIUtil.dip2px(view.getContext(), 15);
-        lp.rightMargin = UIUtil.dip2px(view.getContext(), 15);
+        lp.rightMargin = lp.leftMargin;
         leftPanel.addView(view, lp);
     }
 
@@ -240,7 +273,7 @@ public final class TabImpl<T> implements ITab<T> {
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.CENTER_VERTICAL);
         lp.leftMargin = UIUtil.dip2px(view.getContext(), 15);
-        lp.rightMargin = UIUtil.dip2px(view.getContext(), 15);
+        lp.rightMargin = lp.leftMargin;
         rightPanel.addView(view, lp);
     }
 
