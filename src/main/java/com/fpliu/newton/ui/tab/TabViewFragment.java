@@ -2,6 +2,8 @@ package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -92,23 +94,23 @@ public abstract class TabViewFragment<T> extends LazyFragment implements ITab<T>
     }
 
     @Override
-    public void setColorScrollBar(int color, int height) {
+    public void setColorScrollBar(@ColorInt int color, int height) {
         tab.setColorScrollBar(color, height);
     }
 
     @Override
-    public void setColorScrollBar(int color, int height, ScrollBar.Gravity gravity) {
+    public void setColorScrollBar(@ColorInt int color, int height, ScrollBar.Gravity gravity) {
         tab.setColorScrollBar(color, height, gravity);
     }
 
     @Override
-    public void setColorResScrollBar(int colorId, int height) {
-        tab.setColorResScrollBar(colorId, height);
+    public void setColorResScrollBar(@ColorRes int colorRes, int height) {
+        tab.setColorResScrollBar(colorRes, height);
     }
 
     @Override
-    public void setColorResScrollBar(int colorId, int height, ScrollBar.Gravity gravity) {
-        tab.setColorResScrollBar(colorId, height, gravity);
+    public void setColorResScrollBar(@ColorRes int colorRes, int height, ScrollBar.Gravity gravity) {
+        tab.setColorResScrollBar(colorRes, height, gravity);
     }
 
     @Override
@@ -117,13 +119,23 @@ public abstract class TabViewFragment<T> extends LazyFragment implements ITab<T>
     }
 
     @Override
-    public void setOnTransitionTextViewSizeAndColor(float selectSize, float unSelectSize, int selectColor, int unSelectColor) {
+    public void setOnTransitionTextViewSizeAndColor(float selectSize, float unSelectSize, @ColorInt int selectColor, @ColorInt int unSelectColor) {
         tab.setOnTransitionTextViewSizeAndColor(selectSize, unSelectSize, selectColor, unSelectColor);
     }
 
     @Override
-    public void setOnTransitionTextViewSizeAndColorRes(float selectSize, float unSelectSize, int selectColorId, int unSelectColorId) {
-        tab.setOnTransitionTextViewSizeAndColorRes(selectSize, unSelectSize, selectColorId, unSelectColorId);
+    public void setOnTransitionTextViewSizeAndColorRes(float selectSize, float unSelectSize, @ColorRes int selectColorRes, @ColorRes int unSelectColorRes) {
+        tab.setOnTransitionTextViewSizeAndColorRes(selectSize, unSelectSize, selectColorRes, unSelectColorRes);
+    }
+
+    @Override
+    public void setOnTransitionBackgroundColorChange(@ColorInt int selectColor, @ColorInt int unSelectColor) {
+        tab.setOnTransitionBackgroundColorChange(selectColor, unSelectColor);
+    }
+
+    @Override
+    public void setOnTransitionBackgroundColorResChange(@ColorRes int selectColorRes, @ColorRes int unSelectColorRes) {
+        tab.setOnTransitionBackgroundColorResChange(selectColorRes, unSelectColorRes);
     }
 
     @Override
@@ -162,8 +174,18 @@ public abstract class TabViewFragment<T> extends LazyFragment implements ITab<T>
     }
 
     @Override
-    public void setIndicatorWrapAndInCenter(int indicatorBarBackgroundColor) {
+    public void setIndicatorWrapAndInCenter(@ColorInt int indicatorBarBackgroundColor) {
         tab.setIndicatorWrapAndInCenter(indicatorBarBackgroundColor);
+    }
+
+    @Override
+    public void setIndicatorWrapAndAlignLeft(@ColorInt int indicatorBarBackgroundColor) {
+        tab.setIndicatorWrapAndAlignLeft(indicatorBarBackgroundColor);
+    }
+
+    @Override
+    public void setIndicatorWrapAndAlignRight(@ColorInt int indicatorBarBackgroundColor) {
+        tab.setIndicatorWrapAndAlignRight(indicatorBarBackgroundColor);
     }
 
     @Override
