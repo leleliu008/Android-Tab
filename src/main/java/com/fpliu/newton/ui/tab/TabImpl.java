@@ -239,7 +239,7 @@ public final class TabImpl<T> implements ITab<T> {
         View view = (View) indicatorView;
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
         lp.width = RelativeLayout.LayoutParams.WRAP_CONTENT;
-        lp.addRule(RelativeLayout.ALIGN_LEFT);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         view.setLayoutParams(lp);
         ((ViewGroup) indicatorPanel.getParent()).setBackgroundColor(indicatorBarBackgroundColor);
     }
@@ -249,7 +249,7 @@ public final class TabImpl<T> implements ITab<T> {
         View view = (View) indicatorView;
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) view.getLayoutParams();
         lp.width = RelativeLayout.LayoutParams.WRAP_CONTENT;
-        lp.addRule(RelativeLayout.ALIGN_RIGHT);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         view.setLayoutParams(lp);
         ((ViewGroup) indicatorPanel.getParent()).setBackgroundColor(indicatorBarBackgroundColor);
     }
