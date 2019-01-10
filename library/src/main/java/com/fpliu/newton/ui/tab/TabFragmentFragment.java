@@ -2,17 +2,14 @@ package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.fpliu.newton.ui.base.BaseActivity;
+import com.fpliu.newton.ui.base.BaseView;
+import com.fpliu.newton.ui.base.LazyFragment;
+import com.google.android.material.appbar.AppBarLayout;
 import com.shizhefei.view.indicator.FixedIndicatorView;
 import com.shizhefei.view.indicator.Indicator;
 import com.shizhefei.view.indicator.IndicatorViewPager;
@@ -24,20 +21,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>, IndicatorViewPager.OnIndicatorPageChangeListener {
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.Fragment;
+
+public abstract class TabFragmentFragment<T> extends LazyFragment implements ITab<T>, IndicatorViewPager.OnIndicatorPageChangeListener {
 
     private ITab<T> tab;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+    protected void onCreateViewLazy(BaseView baseView, Bundle savedInstanceState) {
+        super.onCreateViewLazy(baseView, savedInstanceState);
+        Context context = getActivity();
         tab = new TabImpl<>();
-        View contentView = tab.init(this, getRelationShipAndPosition(), heightWrapContent());
+        View contentView = tab.init(context, getRelationShipAndPosition(), heightWrapContent());
         CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT);
         lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
-        addContentView(contentView, lp);
-        setIndicator(new FixedIndicatorView(this));
+        baseView.addView(contentView, lp);
+        setIndicator(new FixedIndicatorView(context));
     }
 
     @Override
@@ -48,20 +51,20 @@ public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>
     @Override
     public void setIndicator(Indicator indicator) {
         tab.setIndicator(indicator);
-        tab.setPagerAdapter(new IndicatorViewPager.IndicatorViewPagerAdapter() {
+        tab.setPagerAdapter(new IndicatorViewPager.IndicatorFragmentPagerAdapter(getChildFragmentManager()) {
             @Override
             public int getCount() {
-                return TabViewActivity.this.getTabCount();
+                return TabFragmentFragment.this.getTabCount();
             }
 
             @Override
             public View getViewForTab(int position, View convertView, ViewGroup container) {
-                return TabViewActivity.this.getViewForTab(position, convertView, container, get(position));
+                return TabFragmentFragment.this.getViewForTab(position, convertView, container, get(position));
             }
 
             @Override
-            public View getViewForPage(int position, View convertView, ViewGroup container) {
-                return TabViewActivity.this.getViewForPage(position, convertView, container, get(position));
+            public Fragment getFragmentForPage(int position) {
+                return TabFragmentFragment.this.getFragmentForPage(position);
             }
         });
         tab.setOnIndicatorPageChangeListener(this);
@@ -83,8 +86,8 @@ public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>
     }
 
     @Override
-    public IndicatorViewPager.IndicatorViewPagerAdapter getPagerAdapter() {
-        return (IndicatorViewPager.IndicatorViewPagerAdapter) tab.getPagerAdapter();
+    public IndicatorViewPager.IndicatorFragmentPagerAdapter getPagerAdapter() {
+        return (IndicatorViewPager.IndicatorFragmentPagerAdapter) tab.getPagerAdapter();
     }
 
     @Override
@@ -362,6 +365,10 @@ public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>
         return tab.subList(fromIndex, toIndex);
     }
 
+    public Fragment getCurrentPageFragment() {
+        return getPagerAdapter().getCurrentFragment();
+    }
+
     public RelationShipAndPosition getRelationShipAndPosition() {
         return RelationShipAndPosition.LINEAR_TOP;
     }
@@ -377,5 +384,5 @@ public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>
 
     public abstract View getViewForTab(int position, View convertView, ViewGroup container, T item);
 
-    public abstract View getViewForPage(int position, View convertView, ViewGroup container, T item);
+    public abstract Fragment getFragmentForPage(int position);
 }

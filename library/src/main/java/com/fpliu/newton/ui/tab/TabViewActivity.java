@@ -2,18 +2,13 @@ package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.fpliu.newton.ui.base.BaseView;
-import com.fpliu.newton.ui.base.LazyFragment;
+import com.fpliu.newton.ui.base.BaseActivity;
+import com.google.android.material.appbar.AppBarLayout;
 import com.shizhefei.view.indicator.FixedIndicatorView;
 import com.shizhefei.view.indicator.Indicator;
 import com.shizhefei.view.indicator.IndicatorViewPager;
@@ -25,20 +20,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public abstract class TabViewFragment<T> extends LazyFragment implements ITab<T>, IndicatorViewPager.OnIndicatorPageChangeListener {
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+
+public abstract class TabViewActivity<T> extends BaseActivity implements ITab<T>, IndicatorViewPager.OnIndicatorPageChangeListener {
 
     private ITab<T> tab;
 
     @Override
-    protected void onCreateViewLazy(BaseView baseView, Bundle savedInstanceState) {
-        super.onCreateViewLazy(baseView, savedInstanceState);
-        Context context = getActivity();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         tab = new TabImpl<>();
-        View contentView = tab.init(context, getRelationShipAndPosition(), heightWrapContent());
+        View contentView = tab.init(this, getRelationShipAndPosition(), heightWrapContent());
         CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT);
         lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
-        baseView.addView(contentView, lp);
-        setIndicator(new FixedIndicatorView(context));
+        addContentView(contentView, lp);
+        setIndicator(new FixedIndicatorView(this));
     }
 
     @Override
@@ -52,17 +52,17 @@ public abstract class TabViewFragment<T> extends LazyFragment implements ITab<T>
         tab.setPagerAdapter(new IndicatorViewPager.IndicatorViewPagerAdapter() {
             @Override
             public int getCount() {
-                return TabViewFragment.this.getTabCount();
+                return TabViewActivity.this.getTabCount();
             }
 
             @Override
             public View getViewForTab(int position, View convertView, ViewGroup container) {
-                return TabViewFragment.this.getViewForTab(position, convertView, container, get(position));
+                return TabViewActivity.this.getViewForTab(position, convertView, container, get(position));
             }
 
             @Override
             public View getViewForPage(int position, View convertView, ViewGroup container) {
-                return TabViewFragment.this.getViewForPage(position, convertView, container, get(position));
+                return TabViewActivity.this.getViewForPage(position, convertView, container, get(position));
             }
         });
         tab.setOnIndicatorPageChangeListener(this);

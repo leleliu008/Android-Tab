@@ -1,13 +1,14 @@
 package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 
 import com.shizhefei.view.indicator.Indicator.OnTransitionListener;
 import com.shizhefei.view.utils.ColorGradient;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.core.content.ContextCompat;
 
 public class OnTransitionBackgroundColorChangeListener implements OnTransitionListener {
 

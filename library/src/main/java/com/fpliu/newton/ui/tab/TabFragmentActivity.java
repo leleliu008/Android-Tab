@@ -2,19 +2,13 @@ package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import com.fpliu.newton.ui.base.BaseView;
-import com.fpliu.newton.ui.base.LazyFragment;
+import com.fpliu.newton.ui.base.BaseActivity;
+import com.google.android.material.appbar.AppBarLayout;
 import com.shizhefei.view.indicator.FixedIndicatorView;
 import com.shizhefei.view.indicator.Indicator;
 import com.shizhefei.view.indicator.IndicatorViewPager;
@@ -26,20 +20,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-public abstract class TabFragmentFragment<T> extends LazyFragment implements ITab<T>, IndicatorViewPager.OnIndicatorPageChangeListener {
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.fragment.app.Fragment;
+
+public abstract class TabFragmentActivity<T> extends BaseActivity implements ITab<T>, IndicatorViewPager.OnIndicatorPageChangeListener {
 
     private ITab<T> tab;
 
     @Override
-    protected void onCreateViewLazy(BaseView baseView, Bundle savedInstanceState) {
-        super.onCreateViewLazy(baseView, savedInstanceState);
-        Context context = getActivity();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         tab = new TabImpl<>();
-        View contentView = tab.init(context, getRelationShipAndPosition(), heightWrapContent());
+        View contentView = tab.init(this, getRelationShipAndPosition(), heightWrapContent());
         CoordinatorLayout.LayoutParams lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT);
         lp.setBehavior(new AppBarLayout.ScrollingViewBehavior());
-        baseView.addView(contentView, lp);
-        setIndicator(new FixedIndicatorView(context));
+        addContentView(contentView, lp);
+        setIndicator(new FixedIndicatorView(this));
     }
 
     @Override
@@ -50,20 +50,20 @@ public abstract class TabFragmentFragment<T> extends LazyFragment implements ITa
     @Override
     public void setIndicator(Indicator indicator) {
         tab.setIndicator(indicator);
-        tab.setPagerAdapter(new IndicatorViewPager.IndicatorFragmentPagerAdapter(getChildFragmentManager()) {
+        tab.setPagerAdapter(new IndicatorViewPager.IndicatorFragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public int getCount() {
-                return TabFragmentFragment.this.getTabCount();
+                return TabFragmentActivity.this.getTabCount();
             }
 
             @Override
             public View getViewForTab(int position, View convertView, ViewGroup container) {
-                return TabFragmentFragment.this.getViewForTab(position, convertView, container, get(position));
+                return TabFragmentActivity.this.getViewForTab(position, convertView, container, get(position));
             }
 
             @Override
             public Fragment getFragmentForPage(int position) {
-                return TabFragmentFragment.this.getFragmentForPage(position);
+                return TabFragmentActivity.this.getFragmentForPage(position);
             }
         });
         tab.setOnIndicatorPageChangeListener(this);
@@ -363,6 +363,7 @@ public abstract class TabFragmentFragment<T> extends LazyFragment implements ITa
     public List<T> subList(int fromIndex, int toIndex) {
         return tab.subList(fromIndex, toIndex);
     }
+
 
     public Fragment getCurrentPageFragment() {
         return getPagerAdapter().getCurrentFragment();

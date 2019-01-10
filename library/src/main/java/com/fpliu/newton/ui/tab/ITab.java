@@ -1,8 +1,6 @@
 package com.fpliu.newton.ui.tab;
 
 import android.content.Context;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -13,6 +11,9 @@ import com.shizhefei.view.indicator.slidebar.ScrollBar;
 import com.shizhefei.view.viewpager.SViewPager;
 
 import java.util.List;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 
 public interface ITab<T> extends List<T> {
 
